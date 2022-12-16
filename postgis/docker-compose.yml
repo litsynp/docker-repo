@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgis/postgis
+    volumes:
+      - postgres_postgis_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+
+  postgres_test:
+    image: postgis/postgis
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+      POSTGRES_DB: postgres_test
+    ports:
+      - 5433:5432
+
+volumes:
+  postgres_postgis_data:
