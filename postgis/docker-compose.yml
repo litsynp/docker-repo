@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   postgres:
     image: postgis/postgis
@@ -11,7 +9,7 @@ services:
       POSTGRES_PASSWORD:
       POSTGRES_DB: postgres
     ports:
-      - 5432:5432
+      - "127.0.0.1:5432:5432"
 
   postgres_test:
     image: postgis/postgis
@@ -21,7 +19,7 @@ services:
       POSTGRES_PASSWORD:
       POSTGRES_DB: postgres_test
     ports:
-      - 5433:5432
+      - "127.0.0.1:5433:5432"
 
 volumes:
   postgres_postgis_data:
