@@ -13,24 +13,33 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=
       - MONGO_INITDB_DATABASE=dev
     healthcheck:
-      test: mongosh --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
-      interval: 2s
-      timeout: 3s
-      retries: 5
+      # PRIMARY(1) 또는 SECONDARY(2) 이면 OK, 그 외(STARTUP/RECOVERING 등)면 실패
+      test: >
+        bash -lc 'mongosh --quiet --eval "
+          const s = rs.status()?.myState;
+          quit((s===1||s===2)?0:1);
+        " localhost:27017/admin'
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
 
   mongo-init:
     image: mongo
     depends_on:
       - mongodb
     command: >
-      sh -c "sleep 5; mongosh --host mongodb:27017 --eval '
-      rs.initiate( {
-        _id : \"rs0\",
-        members: [
-          { _id: 0, host: \"mongodb:27017\" }
-        ]
-      })
-      '"
+      bash -lc "
+        sleep 5;
+        mongosh --host mongodb:27017 --quiet --eval '
+          try {
+            rs.initiate({
+              _id: \"rs0\",
+              members: [ { _id: 0, host: \"mongodb:27017\" } ]
+            });
+          } catch (e) { /* Ignore if already initialized */ }
+        '
+      "
 
 networks:
   default:
